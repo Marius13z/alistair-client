@@ -78,7 +78,7 @@ const PostDetails = () => {
             <button
               disabled={!user}
               type="submit"
-              className="disabled:bg-gray-300 absolute bottom-[92px] w-36 right-7 text-xs btn-primary mt-5"
+              className="disabled:bg-gray-300 absolute bottom-[40px] w-36 right-7 text-xs btn-primary mt-5"
             >
               SEND COMMENT
             </button>
