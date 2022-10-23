@@ -17,21 +17,21 @@ const Post = ({ post }) => {
       {editPost ? (
         <PostForm post={post} setEditPost={setEditPost} editMode />
       ) : (
-        <div className="flex space-x-6">
+        <div>
           <img
-            className="h-24 w-24 object-cover p-1 rounded-lg border border-gray-200"
+            className="h-24 float-left w-24 mb-2 mr-4 object-cover p-1 rounded-lg border border-gray-200"
             src={post.image || "profilepic.png"}
             alt="profile pic"
           />
           <ul
             onClick={() => navigate(`/posts/${post._id}`)}
-            className="flex flex-col space-y-1"
+            className=" space-y-1"
           >
             <li>
               <h1 className="text-secondary  font-medium">{post.title}</h1>
             </li>
             <li>
-              <p className="text-secondary text-sm font-light">
+              <p className="text-secondary  text-sm font-light">
                 {post.message}
               </p>
             </li>

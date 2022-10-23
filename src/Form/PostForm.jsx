@@ -53,13 +53,13 @@ const PostForm = ({ editMode, post, setEditPost }) => {
         !editMode && "border border-gray-200"
       }`}
     >
-      <ul className="py-6 px-12 space-y-5">
-        <li className="flex  justify-between items-center w-full">
+      <ul className="py-2 md:py-6 px-2 md:px-12 space-y-5">
+        <li className="flex justify-between items-center w-full">
           <button
             type="file"
-            className=" w-56 flex items-center justify-center "
+            className="w-40 md:w-56 flex items-center justify-center "
           >
-            <PhotographIcon className="h-10 pr-2" />
+            <PhotographIcon className="h-20 md:h-10 pr-2" />
             <FileBase
               type="file"
               onDone={({ base64 }) =>
@@ -72,9 +72,9 @@ const PostForm = ({ editMode, post, setEditPost }) => {
             <button
               onClick={handleDeletePost}
               type="button"
-              className="bg-red-400 flex items-center space-x-2 text-white rounded-full py-1.5 transition-all duration-300 hover:bg-red-500 px-8 font-medium text-xs"
+              className="bg-red-400 flex items-center space-x-2 text-white rounded-full py-1.5 transition-all duration-300 hover:bg-red-500 px-2 md:px-8 font-medium text-xs"
             >
-              <TrashIcon className="h-4" />
+              <TrashIcon className="h-4 md:h-4" />
               <span>DELETE</span>
             </button>
           )}
