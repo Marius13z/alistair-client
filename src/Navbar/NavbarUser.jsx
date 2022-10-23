@@ -3,7 +3,6 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 const NavbarUser = ({ localUser, user, menu }) => {
-  console.log(localUser);
   return (
     <ul
       className={`flex items-center space-x-4 ${
