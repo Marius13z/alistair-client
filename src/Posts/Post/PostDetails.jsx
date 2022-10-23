@@ -42,7 +42,7 @@ const PostDetails = () => {
       ) : (
         <div
           key={post._id}
-          className="relative flex my-16 space-y-7 flex-col px-5 py-5 mx-10 rounded-lg bg-white border border-gray-200"
+          className="relative flex my-16 space-y-7 flex-col px-5 py-5 mx-2 md:mx-10 rounded-lg bg-white border border-gray-200"
         >
           <div className="flex items-center space-x-6">
             <img
@@ -78,7 +78,7 @@ const PostDetails = () => {
             <button
               disabled={!user}
               type="submit"
-              className="disabled:bg-gray-300 absolute bottom-[40px] w-36 right-7 text-xs btn-primary mt-5"
+              className="disabled:bg-gray-300 absolute bottom-[40px] w-28 md:w-36 right-7 text-xs btn-primary mt-5"
             >
               SEND COMMENT
             </button>

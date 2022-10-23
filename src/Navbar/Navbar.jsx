@@ -36,7 +36,7 @@ const Navbar = () => {
 
   return (
     <nav>
-      <ul className="flex md:items-center justify-between px-12 py-4 md:py-2 ">
+      <ul className="flex md:items-center justify-between px-4 md:px-12 py-4 md:py-2 ">
         {/* Left side */}
         <li>
           <ul className="flex items-center space-x-40">

@@ -13,7 +13,7 @@ const Post = ({ post }) => {
   const dispatch = useDispatch();
 
   return (
-    <div className="bg-white relative group cursor-pointer shadow-xl hover:shadow-sm hover:border-gray-300 transition-all duration-300 mx-10 md:mx-0 mb-10 border-gray-200 border p-5 rounded-lg">
+    <div className="bg-white relative group cursor-pointer shadow-xl hover:shadow-sm hover:border-gray-300 transition-all duration-300 mx-2 md:mx-0 mb-10 border-gray-200 border p-5 rounded-lg">
       {editPost ? (
         <PostForm post={post} setEditPost={setEditPost} editMode />
       ) : (

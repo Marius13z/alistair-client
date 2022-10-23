@@ -86,7 +86,7 @@ const UserProfile = () => {
       {userStatus === "loading" ? (
         <UserSkeleton big cards={1} />
       ) : (
-        <section className="flex px-12 relative space-x-7">
+        <section className="flex px-2 md:px-12 relative space-x-7">
           <div className="group relative">
             <img
               className="rounded-md w-32 object-cover bg-white border h-36 p-1"
@@ -183,7 +183,7 @@ const UserProfile = () => {
       <button
         type="button"
         onClick={() => navigate("/")}
-        className="px-12 flex items-center hover:text-primary text-sm lg:text-base transition-all duration-300  space-x-2"
+        className="px-4 md:px-12 flex items-center hover:text-primary text-sm lg:text-base transition-all duration-300  space-x-2"
       >
         <ArrowCircleLeftIcon className="h-5" />
         <span>Go back to Home Page</span>
