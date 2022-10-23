@@ -15,7 +15,7 @@ const initialState = {
 };
 
 // base url used for api fetch
-export const API = axios.create({ baseURL: "http://localhost:5000" });
+export const API = axios.create({ baseURL: "https://alistair-server.herokuapp.com" });
 
 // displaying error text
 const occuredError = "Something happened, please try again!";
