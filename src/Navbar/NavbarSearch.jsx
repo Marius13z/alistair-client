@@ -31,7 +31,7 @@ const NavbarSearch = ({ menu, openMenu, setOpenMenu }) => {
         className={`flex items-center p-1 ${
           menu
             ? "flex-row-reverse w-full pl-4 bg-orange-300"
-            : "border border-gray-200 w-[300px] shadow-md lg:w-[320px] xl:w-[350px] px-2 2xl:w-[600px] bg-white  rounded-lg"
+            : "border border-gray-200 w-[300px] shadow-md lg:w-[320px] xl:w-[350px] px-2 2xl:w-[570px] bg-white  rounded-lg"
         }`}
         onSubmit={handleSubmitSearch}
       >
