@@ -4,8 +4,9 @@ import { useNavigate } from "react-router-dom";
 
 const NavbarSearch = ({ menu, openMenu, setOpenMenu }) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const ref = useRef();
   const navigate = useNavigate();
+
+  // search for posts
   const handleSubmitSearch = (e) => {
     // prevent default refresh behavior
     e.preventDefault();
@@ -21,17 +22,16 @@ const NavbarSearch = ({ menu, openMenu, setOpenMenu }) => {
     }
 
     // clear form
-    ref.current.reset();
+    e.target.reset();
   };
 
   return (
     <li>
       <form
-        ref={ref}
         className={`flex items-center p-1 ${
           menu
             ? "flex-row-reverse w-full pl-4 bg-orange-300"
-            : "border border-gray-200 w-[300px] shadow-md lg:w-[320px] xl:w-[350px] px-2 2xl:w-[570px] bg-white  rounded-lg"
+            : "border border-gray-200 w-[300px] shadow-md lg:w-[320px] xl:w-[350px] px-2 2xl:w-[600px] bg-white  rounded-lg"
         }`}
         onSubmit={handleSubmitSearch}
       >

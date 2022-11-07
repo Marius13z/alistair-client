@@ -1,50 +1,55 @@
-import {
-  ArrowCircleLeftIcon,
-  HeartIcon,
-  PencilIcon,
-} from "@heroicons/react/solid";
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { ArrowCircleLeftIcon, HeartIcon } from "@heroicons/react/solid";
+import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { fetchUserPosts } from "../../features/posts-slice";
-import FileBase from "react-file-base64";
-import {
-  editUserDescription,
-  editUserImage,
-  fetchUser,
-  followUser,
-  logout,
-} from "../../features/user-slice";
 import Post from "../../Posts/Post/Post";
 import CardSkeleton from "../../Skeleton/CardSkeleton";
 import UserSkeleton from "../../Skeleton/UserSkeleton";
+import {
+  useEditUserDescriptionMutation,
+  useEditUserImageMutation,
+  useFollowUserMutation,
+  useGetUserProfileQuery,
+  useGetUserQuery,
+  useLogoutMutation,
+} from "../../features/userApiSlice";
+import { useGetUserPostsQuery } from "../../features/postsApiSlice";
+import FileBase from "react-file-base64";
+import toast from "react-hot-toast";
+import { useEffect } from "react";
 
 const UserProfile = () => {
-  const [editDescription, setEditDescription] = useState(false);
+  const [openDescription, setOpenDescription] = useState(false);
   const [descriptionForm, setDescriptionForm] = useState({ description: "" });
-  const { posts, status } = useSelector((state) => state?.posts);
-  const { user, userStatus } = useSelector((state) => state?.user);
-  // get user details
-  const localUser = JSON.parse(localStorage.getItem("userInfo"));
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   const { id } = useParams();
-  const userData = {
-    followingUser: localUser?.username,
-    followedUserId: user?._id,
-  };
+  const { data: followerUser } = useGetUserQuery();
+  const { data: posts, isLoading: postsAreLoading } = useGetUserPostsQuery(id);
+  const { data: user, isLoading: userIsLoading } = useGetUserProfileQuery(id);
+  const [followUser, { error: followError }] = useFollowUserMutation();
+  const [editUserDescription, { error: descriptionError }] =
+    useEditUserDescriptionMutation();
+  const [editUserImage, { error: imageError }] = useEditUserImageMutation();
+  const [logout] = useLogoutMutation();
 
   // create empty arr to push every post like
   const likesArray = [];
   // for every post like get the length of the likes array and push it in the empty arr
-  posts.forEach((post) => likesArray.push(post.likes.length).reduce);
+  posts?.forEach((post) => likesArray.push(post.likes.length).reduce);
   // calculate the sum of likes inside the arr
   const totalLikes = likesArray.reduce((acc, obj) => {
     return acc + obj;
   }, 0);
 
-  const logoutUser = () => {
-    dispatch(logout());
+  useEffect(() => {
+    if (followError || descriptionError || imageError) {
+      toast.error(
+        followError?.data || descriptionError?.data || imageError?.data
+      );
+    }
+  }, [followError, descriptionError, imageError]);
+
+  const logoutUser = async () => {
+    logout({ id });
 
     navigate("/");
   };
@@ -53,67 +58,46 @@ const UserProfile = () => {
     e.preventDefault();
 
     if (descriptionForm.description.length === 0) {
-      setEditDescription(false);
+      setOpenDescription(false);
 
       return;
     }
 
-    // edit user description state and post the new description to db
-    dispatch(editUserDescription({ id, descriptionForm }));
+    // edit user description
+    editUserDescription({ id, description: descriptionForm });
 
     // close form
-    setEditDescription(false);
+    setOpenDescription(false);
   };
-
-  const editDesc = () => {
-    if (user !== undefined && user.username === localUser.username) {
-      setEditDescription(true);
-    }
-  };
-
-  // fetch user posts
-  useEffect(() => {
-    dispatch(fetchUserPosts(id));
-  }, [dispatch, id]);
-
-  // fetch user details
-  useEffect(() => {
-    dispatch(fetchUser(id));
-  }, [dispatch, id]);
 
   return (
     <main className="my-12 space-y-10">
-      {userStatus === "loading" ? (
+      {userIsLoading ? (
         <UserSkeleton big cards={1} />
       ) : (
-        <section className="flex px-2 md:px-12 relative space-x-7">
+        <section className="flex px-12 relative space-x-7">
           <div className="group relative">
             <img
               className="rounded-md w-32 object-cover bg-white border h-36 p-1"
               referrerPolicy="no-referrer"
-              src={
-                user?.image ||
-                localUser?.image ||
-                "https://i.ibb.co/mbH7CdH/profilepic2.png"
-              }
+              alt="user"
+              src={user?.image || "https://i.ibb.co/mbH7CdH/profilepic2.png"}
             />
-            {user?.username === localUser?.username && (
-              <div className="w-0 h-0 px-3 group-hover:h-32 cursor-pointer group-hover:w-28 z-10 transition-all duration-300 flex items-center justify-center top-2 right-2 absolute">
+            {user && (
+              <button className="w-0 h-0 px-3 group-hover:h-32 cursor-pointer group-hover:w-28 z-10 transition-all duration-300 flex items-center justify-center top-2 right-2 absolute">
                 <FileBase
                   type="file"
-                  onDone={({ base64 }) =>
-                    dispatch(editUserImage({ image: base64, id }))
-                  }
+                  onDone={({ base64 }) => editUserImage({ image: base64, id })}
                   multiple={false}
                 />
-              </div>
+              </button>
             )}
           </div>
 
           <div className="flex flex-col space-y-1">
             <div className="flex space-x-2 items-center">
               <p className="font-regular text-lg ">{id}</p>
-              <button type="button" onClick={logoutUser}>
+              <button disabled={!user} type="button" onClick={logoutUser}>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -132,16 +116,18 @@ const UserProfile = () => {
             </div>
             <div className="flex items-center space-x-3 pb-1">
               <button
-                disabled={
-                  user?.username === localUser?.username ||
-                  id === localUser?.username ||
-                  !localUser
+                disabled={!user}
+                onClick={() =>
+                  followUser({
+                    followee: user._id,
+                  })
                 }
-                onClick={() => dispatch(followUser(userData))}
                 type="button"
-                className="disabled:bg-gray-200 disabled:hover:border-gray-200 disabled:text-secondary text-xs bg-white border py-1 px-3 rounded-md text-primary hover:bg-primary hover:text-white hover:border-primary transition-all duration-300"
+                className=" text-xs bg-white border py-1 px-3 rounded-md text-primary hover:bg-primary hover:text-white hover:border-primary transition-all duration-300"
               >
-                {user?.followers?.find((user) => user === localUser?.username)
+                {user?.followers?.find(
+                  (follower) => follower === followerUser?.username
+                )
                   ? "Unfollow"
                   : "Follow"}
               </button>
@@ -150,7 +136,7 @@ const UserProfile = () => {
                 <span className="text-gray-300 text-xs">{totalLikes}</span>
               </div>
             </div>
-            {editDescription ? (
+            {openDescription ? (
               <form className="relative" onSubmit={onSubmit}>
                 <textarea
                   onChange={(e) =>
@@ -169,7 +155,7 @@ const UserProfile = () => {
               </form>
             ) : (
               <p
-                onClick={editDesc}
+                onClick={() => user && setOpenDescription(true)}
                 className="text-xs cursor-pointer hover:p-1.5 rounded-md transition-all duration-300 hover:bg-gray-200 text-gray-500 max-w-[35ch] md:max-w-[50ch]"
               >
                 {user?.description ||
@@ -183,14 +169,14 @@ const UserProfile = () => {
       <button
         type="button"
         onClick={() => navigate("/")}
-        className="px-4 md:px-12 flex items-center hover:text-primary text-sm lg:text-base transition-all duration-300  space-x-2"
+        className="px-12 flex items-center hover:text-primary text-sm lg:text-base transition-all duration-300  space-x-2"
       >
         <ArrowCircleLeftIcon className="h-5" />
         <span>Go back to Home Page</span>
       </button>
       <section>
         <ul className="flex flex-col px-2 md:px-12 ">
-          {status === "loading" ? (
+          {postsAreLoading ? (
             <CardSkeleton cards={2} />
           ) : (
             <>

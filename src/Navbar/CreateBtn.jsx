@@ -1,14 +1,23 @@
 import { PlusIcon } from "@heroicons/react/solid";
 import React from "react";
 import { useDispatch } from "react-redux";
+import { openCreateForm } from "../Posts/postsSlice";
 
-const CreateBtn = ({ openForm, localUser, menu }) => {
+const CreateBtn = ({ user, menu, setOpenMenu }) => {
   const dispatch = useDispatch();
+
+  const handleOpenForm = () => {
+    if (menu) {
+      setOpenMenu(false);
+    }
+
+    dispatch(openCreateForm());
+  };
 
   return (
     <button
-      disabled={!localUser}
-      onClick={() => dispatch(openForm())}
+      disabled={!user}
+      onClick={handleOpenForm}
       className={` text-secondary font-semibold
          ${
            menu

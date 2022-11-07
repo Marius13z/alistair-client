@@ -7,8 +7,8 @@ const CardSkeleton = ({ cards, big, small }) => {
     .map((_, i) => (
       <div
         key={i}
-        className={`cursor-pointer border border-gray-200 animate-pulse grow-1 bg-white p-4 space-y-5 rounded-lg flex-col ${
-          small ? "mt-5" : big ? "mx-2 my-10" : " mx-2 md:mx-0 mb-7"
+        className={`cursor-pointer border mx-10 md:mx-0 border-gray-200 animate-pulse grow-1 bg-white p-4 space-y-5 rounded-lg flex-col ${
+          small ? "mt-5" : big ? "mx-10 my-10" : "mb-7"
         }`}
       >
         <div role="status" className="flex space-x-4">

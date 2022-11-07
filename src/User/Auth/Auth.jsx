@@ -3,12 +3,15 @@ import { ArrowRightIcon } from "@heroicons/react/solid";
 import React from "react";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
 import jwtDecode from "jwt-decode";
 import AuthForm from "./AuthForm";
 import Logo from "../../Logo";
-import { signIn, signUp } from "../../features/user-slice";
+import {
+  useLoginMutation,
+  useRegisterMutation,
+  useSigninWithGoogleMutation,
+} from "../../features/userApiSlice";
+import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 
 const initialState = {
@@ -22,9 +25,17 @@ const Auth = () => {
   const [formData, setFormData] = useState(initialState);
   const [showPassword, setShowPassword] = useState(false);
   const [loginForm, setLoginForm] = useState(false);
-  const { loggedIn } = useSelector((state) => state.user);
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const [signInWithGoogle] = useSigninWithGoogleMutation();
+
+  const [
+    login,
+    { error: loginError, reset: resetLoginErrors, isSuccess: loggedIn },
+  ] = useLoginMutation();
+  const [
+    register,
+    { error: registerError, reset: resetRegisterErrors, isSuccess: signedUp },
+  ] = useRegisterMutation();
 
   // store data typed from input field
   const handleChange = (e) => {
@@ -42,31 +53,43 @@ const Auth = () => {
     }
 
     // if user is on the registration form
-    if (!loginForm) {
+    if (loginForm === false) {
       // sign up user
-      dispatch(signUp(formData));
-    } else if (loginForm) {
+      register(formData);
+    } else if (loginForm === true) {
       // sign in user
-      dispatch(signIn(formData));
+
+      login(formData);
     }
+
+    // reset the form on submit
+    e.target.reset();
   };
 
-  // check if user is logged in
+  // everytime a new register or login error appears run this effect to display the error on user screen
   useEffect(() => {
-    if (loggedIn) {
+    // reset login and register errors to avoid the cached errors and perform proper validation
+    resetLoginErrors();
+    resetRegisterErrors();
+
+    // if it's an register / login error show a toast error with the name of the error
+    if (registerError || loginError) {
+      toast.error(registerError?.data || loginError?.data);
+      // go to homepage if there are no errors
+    } else if (loggedIn || signedUp) {
       navigate("/");
+
+      // display popup notif so user knows he's logged in
+      toast.success("You have successfuly signed in");
     }
-  }, [loggedIn]);
+  }, [registerError, loginError, loggedIn, signedUp]);
 
   const handleOAuthLogin = async (res) => {
     // decode jwt token to get credentials
-    const { name, sub, picture } = jwtDecode(res?.credential);
+    const { name, email, picture } = jwtDecode(res?.credential);
 
     // save user data in local storage
-    localStorage.setItem(
-      "userInfo",
-      JSON.stringify({ username: name, id: sub, image: picture })
-    );
+    signInWithGoogle({ name, email, picture });
 
     // navigate to / once the user is logged in
     navigate("/");
@@ -91,7 +114,7 @@ const Auth = () => {
           />
 
           <button
-            onClick={() => setLoginForm(!loginForm)}
+            onClick={() => setLoginForm((prevState) => !prevState)}
             className="flex items-center mt-2 group space-x-2"
           >
             <h1 className="text-secondary cursor-pointer text-sm">

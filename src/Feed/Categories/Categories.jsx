@@ -1,18 +1,24 @@
 import { StarIcon } from "@heroicons/react/solid";
-import React, { useEffect } from "react";
-import toast from "react-hot-toast";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchCategories } from "../../features/posts-slice";
+import React from "react";
+import { useGetCategoriesQuery } from "../../features/postsApiSlice";
 import CategorySkeleton from "../../Skeleton/CategorySkeleton";
 import Category from "./Category";
 
 const Categories = () => {
-  const dispatch = useDispatch();
-  const { categories, categoriesStatus } = useSelector((state) => state.posts);
+  const { data: categories, isSuccess, isLoading } = useGetCategoriesQuery();
 
-  useEffect(() => {
-    dispatch(fetchCategories());
-  }, []);
+  let content;
+  if (isLoading) {
+    content = <CategorySkeleton cards={4} />;
+  } else if (isSuccess) {
+    content = categories?.map((category) => (
+      <Category
+        image={category.image}
+        category={category.category}
+        key={category._id}
+      />
+    ));
+  }
 
   return (
     <div
@@ -24,19 +30,7 @@ const Categories = () => {
         <StarIcon className="h-5 text-primary" />
       </div>
 
-      {categoriesStatus === "loading" ? (
-        <CategorySkeleton cards={4} />
-      ) : (
-        <ul>
-          {categories?.map((category) => (
-            <Category
-              image={category.image}
-              category={category.category}
-              key={category._id}
-            />
-          ))}
-        </ul>
-      )}
+      <ul>{content}</ul>
     </div>
   );
 };

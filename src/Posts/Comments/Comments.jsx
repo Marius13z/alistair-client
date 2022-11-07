@@ -2,7 +2,7 @@ import React from "react";
 
 const Comments = ({ comments }) => {
   return (
-    <div className="flex p-2 rounded-lg border border-gray-200 mx-2  md:mx-10  items-center space-x-6">
+    <div className="flex p-2 rounded-lg border border-gray-200  mx-10  items-center space-x-6">
       <img
         referrerPolicy="no-referrer"
         className="h-20 w-20 rounded-sm"

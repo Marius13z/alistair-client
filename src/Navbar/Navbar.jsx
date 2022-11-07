@@ -1,42 +1,22 @@
-import React, { useRef, useState } from "react";
-import {
-  ChartBarIcon,
-  HomeIcon,
-  MenuAlt1Icon,
-  SearchIcon,
-  UserIcon,
-} from "@heroicons/react/outline";
-import { Link, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useState } from "react";
+import { HomeIcon, MenuAlt1Icon } from "@heroicons/react/outline";
+import { Link } from "react-router-dom";
 import Logo from "../Logo";
-import { openForm } from "../features/posts-slice";
-import { useEffect } from "react";
-import { fetchUser } from "../features/user-slice";
-import {
-  ArrowNarrowDownIcon,
-  ArrowSmDownIcon,
-  PlusIcon,
-  StarIcon,
-} from "@heroicons/react/solid";
+import { ArrowSmDownIcon, StarIcon } from "@heroicons/react/solid";
 import NavbarSearch from "./NavbarSearch";
 import CreateBtn from "./CreateBtn";
 import NavbarUser from "./NavbarUser";
+import { useGetUserQuery } from "../features/userApiSlice";
+import { useGetCategoriesQuery } from "../features/postsApiSlice";
 
 const Navbar = () => {
-  // get user credentials from local storage
   const [openMenu, setOpenMenu] = useState(false);
-  const localUser = JSON.parse(localStorage.getItem("userInfo"));
-  const { categories } = useSelector((state) => state.posts);
-  const dispatch = useDispatch();
-  const user = useSelector((state) => state.user.user);
-
-  useEffect(() => {
-    dispatch(fetchUser(localUser?.username));
-  }, [dispatch]);
+  const { data: categories } = useGetCategoriesQuery();
+  const { data: user } = useGetUserQuery();
 
   return (
     <nav>
-      <ul className="flex md:items-center justify-between px-4 md:px-12 py-4 md:py-2 ">
+      <ul className="flex md:items-center justify-between px-12 py-4 md:py-2 ">
         {/* Left side */}
         <li>
           <ul className="flex items-center space-x-40">
@@ -58,13 +38,13 @@ const Navbar = () => {
               <ul className="flex items-center space-x-3">
                 <NavbarSearch setOpenMenu={setOpenMenu} openMenu={openMenu} />
 
-                <CreateBtn openForm={openForm} localUser={localUser} />
+                <CreateBtn user={user} />
               </ul>
             </li>
 
             {/* Right side*/}
             <li className=" hidden md:block">
-              <NavbarUser localUser={localUser} user={user} />
+              <NavbarUser user={user} />
             </li>
           </ul>
         </li>
@@ -81,10 +61,10 @@ const Navbar = () => {
           <ul className=" h-[100vh] hover:w-[58vw] duration-300 transition-all  md:hidden  flex flex-col pt-5  top-0 right-0 fixed w-[50vw] z-20 bg-body shadow-lg border-gray-200 border rounded-l-lg">
             <NavbarSearch menu setOpenMenu={setOpenMenu} openMenu={openMenu} />
             <li className="menu-li pl-0">
-              <NavbarUser localUser={localUser} user={user} menu />
+              <NavbarUser user={user} menu />
             </li>
             <li className="menu-li">
-              <CreateBtn openForm={openForm} localUser={localUser} menu />
+              <CreateBtn setOpenMenu={setOpenMenu} user={user} menu />
             </li>
             <li>
               <ul>
@@ -95,7 +75,11 @@ const Navbar = () => {
                   </button>
                 </li>
                 {categories?.map((category) => (
-                  <li key={category._id} className="flex flex-col w-full ">
+                  <li
+                    onClick={() => setOpenMenu((prevState) => !prevState)}
+                    key={category._id}
+                    className="flex flex-col w-full "
+                  >
                     <Link to={`/posts/category/${category.category}`}>
                       <button className="menu-btn py-3 pl-5 font-medium w-full text-start hover:bg-orange-200">
                         <StarIcon className="menu-icon text-accent" />

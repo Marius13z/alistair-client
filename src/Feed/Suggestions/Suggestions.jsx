@@ -1,28 +1,51 @@
 import React from "react";
-import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchPopularPosts } from "../../features/posts-slice";
-import { fetchUsers } from "../../features/user-slice";
+import { useGetPopularPostsQuery } from "../../features/postsApiSlice";
+import { useGetUserQuery, useGetUsersQuery } from "../../features/userApiSlice";
 import CardSkeleton from "../../Skeleton/CardSkeleton";
 import UserSkeleton from "../../Skeleton/UserSkeleton";
 import RecommendedPost from "./RecommendedPosts/RecommendedPost";
 import Suggestion from "./Suggestion";
 
 const Suggestions = () => {
-  const user = JSON.parse(localStorage.getItem("userInfo"));
-  const dispatch = useDispatch();
-  const { users, userStatus } = useSelector((state) => state.user);
-  const { popularPosts, status } = useSelector((state) => state.posts);
+  const { data: follower } = useGetUserQuery();
+  const {
+    data: posts,
+    isSuccess: recommendedIsSuccess,
+    isLoading: recommendedIsLoading,
+  } = useGetPopularPostsQuery();
+  const {
+    data: followees,
+    isSuccess: suggestionsSuccess,
+    isLoading: suggestionsLoading,
+  } = useGetUsersQuery(follower?.username);
 
-  useEffect(() => {
-    // fetch available users to follow
-    dispatch(fetchUsers(user?.username));
-  }, [dispatch]);
+  let recommended;
+  if (recommendedIsLoading) {
+    recommended = <CardSkeleton cards={2} small />;
+  } else if (recommendedIsSuccess) {
+    recommended = posts?.map((post) => (
+      <RecommendedPost post={post} key={post._id} />
+    ));
+  }
 
-  useEffect(() => {
-    // fetch popular posts
-    dispatch(fetchPopularPosts());
-  }, [dispatch]);
+  let suggestions;
+  if (suggestionsLoading) {
+    suggestions = <UserSkeleton cards={3} />;
+  } else if (suggestionsSuccess) {
+    suggestions = (
+      <ul>
+        {followees
+          ?.map((followee) => (
+            <Suggestion
+              key={followee._id}
+              follower={follower}
+              followee={followee}
+            />
+          ))
+          .slice(0, 3)}
+      </ul>
+    );
+  }
 
   return (
     <div className="bg-tertiary rounded-l-xl max-w-[280px] px-8 py-5 sticky top-5">
@@ -40,17 +63,7 @@ const Suggestions = () => {
           </ul>
         </li>
 
-        <li>
-          {status === "loading" ? (
-            <CardSkeleton cards={2} small />
-          ) : (
-            <ul>
-              {popularPosts?.map((post) => (
-                <RecommendedPost key={post._id} post={post} />
-              ))}
-            </ul>
-          )}
-        </li>
+        <ul>{recommended}</ul>
 
         <li>
           <ul className="flex-col mt-10">
@@ -59,17 +72,7 @@ const Suggestions = () => {
                 FRIEND SUGGESTIONS
               </h1>
             </li>
-            <li>
-              {userStatus === "loading" ? (
-                <UserSkeleton cards={3} />
-              ) : (
-                <ul>
-                  {users
-                    ?.map((user) => <Suggestion key={user._id} user={user} />)
-                    .slice(0, 3)}
-                </ul>
-              )}
-            </li>
+            <li>{suggestions}</li>
           </ul>
         </li>
       </ul>

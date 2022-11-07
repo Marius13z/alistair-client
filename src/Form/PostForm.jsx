@@ -3,24 +3,29 @@ import React from "react";
 import Input from "./Input";
 import FileBase from "react-file-base64";
 import { useState } from "react";
-import { deletePost, editPost, createPost } from "../features/posts-slice";
-import { useDispatch } from "react-redux";
+import {
+  useCreatePostMutation,
+  useDeletePostMutation,
+  useEditPostMutation,
+} from "../features/postsApiSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { closeCreateForm } from "../Posts/postsSlice";
+import { XIcon } from "@heroicons/react/solid";
 
-const PostForm = ({ editMode, post, setEditPost }) => {
-  // get user from local storage in order to store relevant information in form
-  const user = JSON.parse(localStorage.getItem("userInfo"));
-  // create local state to manage form inputs
+const PostForm = ({ editMode, post, setEditForm }) => {
   const [formData, setFormData] = useState({
     category: post?.category || "",
     image: post?.image || "",
-    id: user?.id || user?._id,
-    username: user?.username,
     message: post?.message || "",
     title: post?.title || "",
-    date: new Date().toISOString(),
+    date: new Date().toDateString(),
   });
-  const dispatch = useDispatch();
   const id = post?._id;
+  const [createPost] = useCreatePostMutation();
+  const [editPost] = useEditPostMutation();
+  const [deletePost] = useDeletePostMutation();
+  const dispatch = useDispatch();
+  const { createFormOpen } = useSelector((state) => state.posts);
 
   // create or edit post function
   const handleSubmitPost = (e) => {
@@ -29,21 +34,25 @@ const PostForm = ({ editMode, post, setEditPost }) => {
 
     if (editMode) {
       // update post with new information
-      dispatch(editPost({ id, formData }));
+      editPost({ formData, id });
 
       // close edit post form
-      setEditPost(false);
+      setEditForm(false);
     } else if (!editMode) {
       // create a post based on form data
-      dispatch(createPost(formData));
+      createPost(formData);
+
+      // close create post form
+      dispatch(closeCreateForm());
     }
   };
 
   // delete post function
-  const handleDeletePost = async () => {
-    dispatch(deletePost(id));
+  const handleDeletePost = () => {
+    deletePost(id);
 
-    setEditPost(false);
+    // close edit form
+    setEditForm(false);
   };
 
   return (
@@ -53,13 +62,13 @@ const PostForm = ({ editMode, post, setEditPost }) => {
         !editMode && "border border-gray-200"
       }`}
     >
-      <ul className="py-2 md:py-6 px-2 md:px-12 space-y-5">
-        <li className="flex justify-between items-center w-full">
+      <ul className="py-6 px-12 space-y-5">
+        <li className="flex  justify-between items-center w-full">
           <button
             type="file"
-            className="w-40 md:w-56 flex items-center justify-center "
+            className=" w-56 flex items-center justify-center "
           >
-            <PhotographIcon className="h-20 md:h-10 pr-2" />
+            <PhotographIcon className="h-10 pr-2" />
             <FileBase
               type="file"
               onDone={({ base64 }) =>
@@ -68,16 +77,26 @@ const PostForm = ({ editMode, post, setEditPost }) => {
               multiple={false}
             />
           </button>
-          {editMode && (
-            <button
-              onClick={handleDeletePost}
-              type="button"
-              className="bg-red-400 flex items-center space-x-2 text-white rounded-full py-1.5 transition-all duration-300 hover:bg-red-500 px-2 md:px-8 font-medium text-xs"
-            >
-              <TrashIcon className="h-4 md:h-4" />
-              <span>DELETE</span>
-            </button>
-          )}
+          <ul className="flex space-x-4">
+            {editMode && (
+              <button
+                onClick={handleDeletePost}
+                type="button"
+                className="bg-red-400 flex items-center space-x-2 text-white rounded-full py-1.5 transition-all duration-300 hover:bg-red-500 px-8 font-medium text-xs"
+              >
+                <TrashIcon className="h-4" />
+                <span>DELETE</span>
+              </button>
+            )}
+            {createFormOpen && (
+              <button>
+                <XIcon
+                  onClick={() => dispatch(closeCreateForm())}
+                  className="h-4 hover:rotate-90 transition-all duration-300 hover:text-red-500"
+                />
+              </button>
+            )}
+          </ul>
         </li>
         <Input
           handleChange={(e) =>

@@ -1,48 +1,52 @@
-import { useEffect, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useRef, useState } from "react";
 import { useParams } from "react-router-dom";
-import { commentPost, fetchPost } from "../../features/posts-slice";
+import {
+  useCommentPostMutation,
+  useGetPostQuery,
+} from "../../features/postsApiSlice";
+import { useGetUserQuery } from "../../features/userApiSlice";
 import Navbar from "../../Navbar/Navbar";
 import CardSkeleton from "../../Skeleton/CardSkeleton";
 import Comments from "../Comments/Comments";
 
 const PostDetails = () => {
-  const user = JSON.parse(localStorage.getItem("userInfo"));
+  const { data: user } = useGetUserQuery();
   const [formData, setFormData] = useState({
     message: "",
     username: user?.username,
     image: user?.image,
   });
   const ref = useRef();
-  const { post, status } = useSelector((state) => state?.posts);
-  const dispatch = useDispatch();
   const { id } = useParams();
+  const [commentPost] = useCommentPostMutation();
 
-  useEffect(() => {
-    // get the post
-    dispatch(fetchPost(id));
-  }, [dispatch, id]);
+  const { data: post, isLoading } = useGetPostQuery(id);
 
-  const onSubmit = async (e) => {
+  const onSubmit = (e) => {
     // prevent default refresh behavior
     e.preventDefault();
 
     // create a comment on a specific post
-    dispatch(commentPost({ id, data: formData }));
+    commentPost({ id: id, data: formData });
 
     // clear form
-    ref.current.reset();
+    e.target.reset();
   };
+
+  let comments;
+  comments = post?.comments?.map((comment) =>
+    comment.map((comm, i) => <Comments key={i + 1} comments={comm} />)
+  );
 
   return (
     <>
       <Navbar />
-      {status === "loading" ? (
+      {isLoading ? (
         <CardSkeleton cards={1} big />
       ) : (
         <div
           key={post._id}
-          className="relative flex my-16 space-y-7 flex-col px-5 py-5 mx-2 md:mx-10 rounded-lg bg-white border border-gray-200"
+          className="relative flex my-16 space-y-7 flex-col px-5 py-5 mx-10 rounded-lg bg-white border border-gray-200"
         >
           <div className="flex items-center space-x-6">
             <img
@@ -62,11 +66,9 @@ const PostDetails = () => {
             </ul>
           </div>
 
-          {post?.comments?.map((comment) =>
-            comment.map((comm, i) => <Comments key={i + 1} comments={comm} />)
-          )}
+          {comments}
 
-          <form ref={ref} onSubmit={onSubmit}>
+          <form onSubmit={onSubmit}>
             <textarea
               onChange={(e) =>
                 setFormData({ ...formData, message: e.target.value })
@@ -78,7 +80,7 @@ const PostDetails = () => {
             <button
               disabled={!user}
               type="submit"
-              className="disabled:bg-gray-300 absolute bottom-[40px] w-28 md:w-36 right-7 text-xs btn-primary mt-5"
+              className="disabled:bg-gray-300 absolute bottom-[38px] w-36 right-7 text-xs btn-primary mt-5"
             >
               SEND COMMENT
             </button>

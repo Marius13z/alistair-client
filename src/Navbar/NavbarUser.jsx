@@ -2,7 +2,7 @@ import { UserIcon } from "@heroicons/react/outline";
 import React from "react";
 import { Link } from "react-router-dom";
 
-const NavbarUser = ({ localUser, user, menu }) => {
+const NavbarUser = ({ user, menu }) => {
   return (
     <ul
       className={`flex items-center space-x-4 ${
@@ -12,21 +12,21 @@ const NavbarUser = ({ localUser, user, menu }) => {
       <li className={` ${menu ? "block" : "hidden lg:block"}`}>
         <p
           className={`text-secondary pl-2 font-medium ${
-            localUser?.username?.length >= 10 && "max-w-[80px] truncate"
+            user?.username?.length >= 8 && "max-w-[80px] truncate"
           }`}
         >
-          {localUser?.username}
+          {user?.username}
         </p>
       </li>
       <li>
-        {localUser ? (
-          <Link to={`/user/${localUser?.username}`}>
+        {user ? (
+          <Link to={`/user/${user?.username}`}>
             <button className="h-12 w-12 border border-gray-200 bg-white rounded-md p-0.5">
               <img
                 className="rounded-sm bg-white h-10 w-10 object-cover"
                 alt="profile pic"
                 referrerPolicy="no-referrer"
-                src={user?.image || localUser?.image}
+                src={user?.image}
               />
             </button>
           </Link>
