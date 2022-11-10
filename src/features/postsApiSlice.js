@@ -6,7 +6,7 @@ export const postsApiSlice = apiSlice.injectEndpoints({
       query: () => "/posts",
       providesTags: (result = [], error, arg) => [
         "Post",
-        ...result.map((post) => ({ type: "Post", id: post._id })),
+        ...result?.map((post) => ({ type: "Post", id: post._id })),
       ],
     }),
     getCategories: builder.query({
