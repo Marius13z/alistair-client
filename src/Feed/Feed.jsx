@@ -19,7 +19,7 @@ const Feed = ({ category, search }) => {
   const { data: posts, isSuccess, isLoading } = useGetPostsQuery();
   const { createFormOpen } = useSelector((state) => state?.posts);
 
-  let content;
+  let content = [];
   if (isLoading) {
     content = <CardSkeleton cards={5} />;
   } else if (isSuccess) {
@@ -29,6 +29,7 @@ const Feed = ({ category, search }) => {
       }
     );
   }
+
 
   return (
     <main className="flex justify-center md:space-x-10  py-8  ">
@@ -46,7 +47,7 @@ const Feed = ({ category, search }) => {
             <div className="w-12 bg-primary h-12 rounded-r-xl"></div>
           </div>
         )}
-
+     
         {content}
       </section>
       <section className="hidden md:block relative">

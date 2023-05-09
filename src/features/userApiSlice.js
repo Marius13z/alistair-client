@@ -6,7 +6,7 @@ export const userApiSlice = apiSlice.injectEndpoints({
       query: (id) => `/user/${id}`,
       providesTags: (result, error, arg) => [
         "Users",
-        ...result.map((user) => [{ type: "Users", id: user._id }]),
+        ...result?.map((user) => [{ type: "Users", id: user?._id }]),
       ],
     }),
     getUser: builder.query({
@@ -71,7 +71,7 @@ export const userApiSlice = apiSlice.injectEndpoints({
         body: user.description,
       }),
       invalidatesTags: (result, error, arg) => [
-        { type: "UserProfile", id: arg.id },
+        { type: "UserProfile", id: arg?.id },
       ],
     }),
     editUserImage: builder.mutation({
@@ -81,7 +81,7 @@ export const userApiSlice = apiSlice.injectEndpoints({
         body: user,
       }),
       invalidatesTags: (result, error, arg) => [
-        { type: "UserProfile", id: arg.id },
+        { type: "UserProfile", id: arg?.id },
         { type: "User" },
       ],
     }),

@@ -6,7 +6,7 @@ export const postsApiSlice = apiSlice.injectEndpoints({
       query: () => "/posts",
       providesTags: (result = [], error, arg) => [
         "Post",
-        ...result?.map((post) => ({ type: "Post", id: post._id })),
+        ...result?.map((post) => ({ type: "Post", id: post?._id })),
       ],
     }),
     getCategories: builder.query({
@@ -35,7 +35,7 @@ export const postsApiSlice = apiSlice.injectEndpoints({
       query: (id) => `/posts/${id}/userPosts`,
       providesTags: (result = [], error, arg) => [
         "UserPosts",
-        ...result.map((post) => ({ type: "UserPosts", id: post._id })),
+        ...result?.map((post) => ({ type: "UserPosts", id: post?._id })),
       ],
     }),
     createPost: builder.mutation({
@@ -52,7 +52,7 @@ export const postsApiSlice = apiSlice.injectEndpoints({
         method: "PATCH",
         body: post.formData,
       }),
-      invalidatesTags: (result, error, arg) => [{ type: "Post", id: arg.id }],
+      invalidatesTags: (result, error, arg) => [{ type: "Post", id: arg?.id }],
     }),
     deletePost: builder.mutation({
       query: (id) => ({
@@ -79,7 +79,7 @@ export const postsApiSlice = apiSlice.injectEndpoints({
         method: "POST",
         body: post.data,
       }),
-      invalidatesTags: (result, error, arg) => [{ type: "Post", id: arg.id }],
+      invalidatesTags: (result, error, arg) => [{ type: "Post", id: arg?.id }],
     }),
   }),
 });
